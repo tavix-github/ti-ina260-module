@@ -1,0 +1,16 @@
+INA260 (I2C)
+
+Required properties:
+
+  - compatible : should be "<manufacturer>,<type>", like these:
+
+	"ti,ina260"
+
+  - reg : the I2C address of the INA260
+
+Example:
+
+ina260@40 {
+	compatible = "ti,ina260";
+	reg = <0x40>;
+};
