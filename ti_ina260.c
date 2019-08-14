@@ -57,7 +57,7 @@ static ssize_t current_show(struct device *dev, struct device_attribute *attr, c
 	struct i2c_client *client = container_of(dev, struct i2c_client, dev);
 
 	/* current */
-	unsigned char i_reg = 0x01; // Bus Voltage Register
+	unsigned char i_reg = 0x01; // Bus Current Register
 	unsigned short i_data = 0; // CONTENTS
 	unsigned int current_i = 0;
 
@@ -73,10 +73,10 @@ static ssize_t current_show(struct device *dev, struct device_attribute *attr, c
 
 	mutex_unlock(&ina260->lock);
 	
-	/* htons(v_data) * 1.25 / 1000.0 */
+	/* htons(i_data) * 1.25 / 1000.0 */
 	current_i = htons(i_data) * 125;
 	
-   return sprintf(buf, "%u.%u\n", current_i / 100000, current_i % 100000);
+   return sprintf(buf, "%u\n", current_i / 100);
 
 }
 
@@ -106,16 +106,8 @@ static ssize_t voltage_show(struct device *dev, struct device_attribute *attr, c
 	/* htons(v_data) * 1.25 / 1000.0 */
 	voltage = htons(v_data) * 125;
 	
-   return sprintf(buf, "%u.%u\n", voltage / 100000, voltage % 100000);
-
+	return sprintf(buf, "%u\n", voltage / 100);
 }
-
-//ssize_t voltage_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-//{
-//
-//   return count;
-//}
-
 
 static ssize_t power_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -139,9 +131,9 @@ static ssize_t power_show(struct device *dev, struct device_attribute *attr, cha
 	mutex_unlock(&ina260->lock);
 
 	/* htons(p_data) * 10.0 / 1000.0 */
-	power = htons(p_data) * 1000;
+	power = htons(p_data) * 10;
 		
-	return sprintf(buf, "%u.%u\n", power / 100000, power % 100000);
+	return sprintf(buf, "%u\n", power);
 }
 
 
@@ -181,6 +173,8 @@ static int ina260_probe(struct i2c_client *client, const struct i2c_device_id *i
 	ina260->power_attribute.show = power_show;
 	device_create_file(&client->dev, &ina260->power_attribute);
 	
+	dev_info(&client->dev, "Device Tree Probe successfully\n");
+
 	return 0;
 }
 
